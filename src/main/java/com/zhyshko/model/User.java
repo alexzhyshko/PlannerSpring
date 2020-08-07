@@ -11,8 +11,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.AllArgsConstructor;
@@ -54,5 +56,10 @@ public class User {
 			joinColumns=@JoinColumn(name="user_id"),
 			inverseJoinColumns=@JoinColumn(name="card_id"))
 	private List<Card> cards;
+	
+	
+	@OneToMany(mappedBy = "owner")
+	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	private List<Notification> notifications;
 
 }
