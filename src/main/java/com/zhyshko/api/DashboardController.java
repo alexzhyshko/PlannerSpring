@@ -55,9 +55,11 @@ public class DashboardController {
 		UUID sectionid =  UUID.fromString(json.get("sectionid"));
 		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
 		Section section = sectionService.getSectionById(sectionid);
-		section.setDashboard(null);
 		dashboard.getSections().remove(section);
+		section.setDashboard(null);
 		dashboardService.updateDashboard(dashboard);
+		sectionService.updateSection(section);
+		sectionService.deleteSection(sectionid);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
 }

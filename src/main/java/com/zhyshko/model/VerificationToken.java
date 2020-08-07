@@ -6,12 +6,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.AllArgsConstructor;
@@ -22,11 +19,11 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @Entity
-@Table(name = "notifications")
+@Table(name = "tokens")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
-	
+public class VerificationToken {
+
 	@Id
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(
@@ -35,14 +32,8 @@ public class Notification {
 	)
 	@Column(columnDefinition = "BINARY(16)")
 	private UUID id;
-	private String title;
-	private String text;
-	@Builder.Default
-	private boolean isSeen = false;
+	@OneToOne(fetch = javax.persistence.FetchType.LAZY)
+	private User user;
+	private String token;
 	
-	@ManyToOne
-	@JoinColumn(name = "owner_id")
-	@Cascade(CascadeType.ALL)
-	private User owner;
-
 }

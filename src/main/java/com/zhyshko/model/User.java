@@ -40,10 +40,14 @@ public class User {
 	)
 	@Column(columnDefinition = "BINARY(16)")
 	private UUID id;
+	@Column(unique = true)
 	private String username;
 	private String name;
 	private String surname;
+	@Column(unique = true)
 	private String email;
+	private String password;
+	private boolean enabled;
 	@ManyToMany(cascade=CascadeType.ALL)
 	@JoinTable(
 			name="users_dashboards",

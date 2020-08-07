@@ -51,8 +51,10 @@ public class SectionController {
 		Section section = sectionService.getSectionById(sectionid);
 		Card card = cardService.getCardById(cardid);
 		section.getCards().remove(card);
+		card.setSection(null);
 		sectionService.updateSection(section);
-		cardService.deleteCard(card.getId());
+		cardService.updateCard(card);
+		cardService.deleteCard(cardid);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
 	

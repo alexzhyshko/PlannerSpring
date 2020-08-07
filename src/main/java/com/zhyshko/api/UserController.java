@@ -30,18 +30,18 @@ public class UserController {
 	private final UserService userService;
 	private final DashboardService dashboardService;
 	
-	@PostMapping("/create")
-	public ResponseEntity<String> addUser(@RequestBody User user) {
-		userService.addUser(user);
-		return new ResponseEntity<>("Done", HttpStatus.CREATED);
-	}
+//	@PostMapping("/create")
+//	public ResponseEntity<String> addUser(@RequestBody User user) {
+//		userService.addUser(user);
+//		return new ResponseEntity<>("Done", HttpStatus.CREATED);
+//	}
 	
 	@GetMapping
 	public List<User> getAllUsers() {
 		return userService.getAllUsers();
 	}
 	
-	@PutMapping("/createDashboard/{userid}")
+	@PostMapping("/createDashboard/{userid}")
 	public ResponseEntity<String> createDashboard(@PathVariable("userid") UUID userid, @RequestBody Dashboard dashboard) {
 		User user = userService.getUserById(userid);
 		user.getDashboards().add(dashboard);

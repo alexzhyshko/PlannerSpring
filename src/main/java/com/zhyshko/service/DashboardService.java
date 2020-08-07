@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.zhyshko.model.Dashboard;
 import com.zhyshko.repository.DashboardRepository;
@@ -18,10 +19,14 @@ public class DashboardService {
 
 	private final DashboardRepository dashboardRepository;
 	
+	
+	@Transactional
 	public Dashboard addDashboard(Dashboard dashboard) {
 		return dashboardRepository.save(dashboard);
 	}
 	
+	
+	@Transactional
 	public List<Dashboard> getAllDashboards(){
 		List<Dashboard> result = new ArrayList<>();
 		for(Dashboard dashboard : dashboardRepository.findAll()) {
@@ -30,14 +35,20 @@ public class DashboardService {
 		return result;
 	}
 	
+	
+	@Transactional
 	public Dashboard getDashboardById(UUID id){
 		return dashboardRepository.findById(id).orElse(null);
 	}
 	
+	
+	@Transactional
 	public void deleteDashboard(UUID id){
 		dashboardRepository.deleteById(id);
 	}
 	
+	
+	@Transactional
 	public Dashboard updateDashboard(Dashboard dashboard){
 		return 	dashboardRepository.save(dashboard);
 	}
