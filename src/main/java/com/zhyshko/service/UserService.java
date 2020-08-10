@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.zhyshko.exception.UserNotFoundException;
+import com.zhyshko.model.Dashboard;
 import com.zhyshko.model.User;
 import com.zhyshko.repository.UserRepository;
 
@@ -37,9 +37,15 @@ public class UserService {
 	}
 	
 	
+	
 	@Transactional
 	public User getUserById(UUID id){
 		return userRepository.findById(id).orElse(null);
+	}
+	
+	@Transactional
+	public User getUserByUsername(String username){
+		return userRepository.findByUsername(username).orElse(null);
 	}
 	
 	

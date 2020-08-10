@@ -21,25 +21,40 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Autowired
-    private JwtProvider jwtProvider;
+	private JwtProvider jwtProvider;
 	@Autowired
-    private UserDetailsService userDetailsService;
-	
+	private UserDetailsService userDetailsService;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		String jwt = getJwtFromRequest(request);
-		if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
-            String username = jwtProvider.getUsernameFromJwt(jwt);
-
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
-                    null, userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-        filterChain.doFilter(request, response);
+		try {
+			if(request.getRequestURL().toString().contains("auth/refresh/token")) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+			if(request.getRequestURL().toString().contains("auth/login")) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+			if(request.getRequestURL().toString().contains("auth/signup")) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+			if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
+				String username = jwtProvider.getUsernameFromJwt(jwt);
+				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						userDetails, null, userDetails.getAuthorities());
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+			filterChain.doFilter(request, response);
+		} catch (Exception e) {
+			response.setStatus(403);
+			response.getWriter().write("403 Forbidden");
+		}
 	}
 
 	private String getJwtFromRequest(HttpServletRequest request) {

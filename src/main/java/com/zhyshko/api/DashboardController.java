@@ -39,6 +39,15 @@ public class DashboardController {
 	public List<Dashboard> getAllDashboards() {
 		return dashboardService.getAllDashboards();
 	}
+		
+	@GetMapping("/by-user/{username}/{dashboardid}")
+	public ResponseEntity<Object> getDashboardByUser(@PathVariable("username") String username, @PathVariable("dashboardid") UUID dashboardid) {
+		Dashboard result = dashboardService.getDashboardByUser(username, dashboardid);
+		if(result==null) {
+			return new ResponseEntity<>("No such dashboard", HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
 	
 	@PostMapping("/createSection/{dashboardid}")
 	public ResponseEntity<String> addSection(@PathVariable("dashboardid") UUID dashboardid, @RequestBody Section section) {

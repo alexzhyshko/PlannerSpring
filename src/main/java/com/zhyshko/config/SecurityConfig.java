@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,12 +27,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/api/auth/**").permitAll()
-				.antMatchers("/api/user/**").permitAll().antMatchers("/api/dashboard/**").permitAll()
-				.antMatchers("/api/section/**").permitAll().antMatchers("/api/card/**").permitAll().anyRequest()
+		httpSecurity
+		.csrf().disable()
+		.authorizeRequests()
+		.antMatchers("/api/auth/**").permitAll()
+				.antMatchers("/api/user/**").permitAll()
+				.antMatchers("/api/dashboard/**").permitAll()
+				.antMatchers("/api/section/**").permitAll()
+				.antMatchers("/api/card/**").permitAll()
+				.anyRequest()
 				.authenticated();
+				
 		httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+	}
+	
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+	    web.ignoring().antMatchers("/api/auth/login").antMatchers("/api/auth/signup").antMatchers("/api/auth/refresh/token").anyRequest();
 	}
 
 	@Autowired

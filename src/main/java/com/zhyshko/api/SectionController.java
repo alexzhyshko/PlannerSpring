@@ -35,6 +35,16 @@ public class SectionController {
 		return sectionService.getAllSections();
 	}
 	
+	@GetMapping("/by-user/{username}/{dashboardid}/{sectionid}")
+	public ResponseEntity<Object> getSectionByUser(@PathVariable("username") String username, @PathVariable("dashboardid") UUID dashboardid, @PathVariable("sectionid") UUID sectionid) {
+		Section result = sectionService.getSectionByUser(username, dashboardid, sectionid);
+		if(result==null) {
+			return new ResponseEntity<>("No such section", HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	
 	@PostMapping("/createCard/{sectionid}")
 	public ResponseEntity<String> addSection(@PathVariable("sectionid") UUID sectionid, @RequestBody Card card) {
 		Section section = sectionService.getSectionById(sectionid);

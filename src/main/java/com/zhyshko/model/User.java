@@ -17,11 +17,13 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Data
 @Builder
@@ -30,14 +32,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-	
-	
+
 	@Id
 	@GeneratedValue(generator = "UUID")
-	@GenericGenerator(
-		name = "UUID",
-		strategy = "org.hibernate.id.UUIDGenerator"
-	)
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	@Column(columnDefinition = "BINARY(16)")
 	private UUID id;
 	@Column(unique = true)
@@ -48,22 +46,20 @@ public class User {
 	private String email;
 	private String password;
 	private boolean enabled;
-	@ManyToMany(cascade=CascadeType.ALL)
-	@JoinTable(
-			name="users_dashboards",
-			joinColumns=@JoinColumn(name="user_id"),
-			inverseJoinColumns=@JoinColumn(name="dashboard_id"))
+
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "users_dashboards", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "dashboard_id"))
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 	private List<Dashboard> dashboards;
-	@ManyToMany(cascade=CascadeType.ALL)
-	@JoinTable(
-			name="users_cards",
-			joinColumns=@JoinColumn(name="user_id"),
-			inverseJoinColumns=@JoinColumn(name="card_id"))
+
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "users_cards", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "card_id"))
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 	private List<Card> cards;
-	
-	
+
 	@OneToMany(mappedBy = "owner")
 	@Cascade(org.hibernate.annotations.CascadeType.ALL)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 	private List<Notification> notifications;
 
 }

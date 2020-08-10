@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.zhyshko.model.Dashboard;
+import com.zhyshko.model.User;
 import com.zhyshko.repository.DashboardRepository;
 
 import lombok.AllArgsConstructor;
@@ -18,6 +19,24 @@ import lombok.AllArgsConstructor;
 public class DashboardService {
 
 	private final DashboardRepository dashboardRepository;
+	
+	
+	
+	@Transactional
+	public Dashboard getDashboardByUser(String username, UUID dashboardid) {
+		Dashboard dashboard = getDashboardById(dashboardid);
+		if(dashboard==null) {
+			return null;
+		}
+		boolean userHasAccess = false;
+		for(User user : dashboard.getUsers()) {
+			if(user.getUsername().equalsIgnoreCase(username)) {
+				userHasAccess = true;
+				break;
+			}
+		}
+		return userHasAccess?dashboard:null;
+	}
 	
 	
 	@Transactional

@@ -16,6 +16,9 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,11 +44,13 @@ public class Section {
 
 	@OneToMany(mappedBy = "section")
 	@Cascade(CascadeType.ALL)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 	List<Card> cards;
 
 	@ManyToOne
 	@JoinColumn(name = "dashboard_id")
 	@Cascade(CascadeType.ALL)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 	private Dashboard dashboard;
 
 }

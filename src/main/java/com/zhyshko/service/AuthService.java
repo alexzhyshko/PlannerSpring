@@ -16,6 +16,7 @@ import com.zhyshko.dto.AuthenticationResponse;
 import com.zhyshko.dto.LoginRequest;
 import com.zhyshko.dto.RefreshTokenRequest;
 import com.zhyshko.dto.RegisterRequest;
+import com.zhyshko.dto.UserToken;
 import com.zhyshko.model.NotificationEmail;
 import com.zhyshko.model.User;
 import com.zhyshko.model.VerificationToken;
@@ -39,23 +40,31 @@ public class AuthService {
 	
 	@Transactional
 	public void verifyAccount(String token) {
-		String username = verificationTokenRepository.findByToken(token).get().getUser().getUsername();
-		User user = userRepository.findByUsername(username).get();
+		String username = verificationTokenRepository.findByToken(token).orElseThrow(()->new NullPointerException("Token optional has no value")).getUser().getUsername();
+		User user = userRepository.findByUsername(username).orElseThrow(()->new NullPointerException("User optional has no value"));
 		user.setEnabled(true);
 		userRepository.save(user);
 	}
 
 	@Transactional
-	public void signup(RegisterRequest registerRequest) {
+	public UserToken signup(RegisterRequest registerRequest) throws Exception {
 		User user = User.builder().username(registerRequest.getUsername()).email(registerRequest.getEmail())
 				.enabled(false).password(passwordEncoder.encode(registerRequest.getPassword())).build();
 		userRepository.save(user);
 		String token = generateVerificationToken(user);
-		mailService.sendMail(new NotificationEmail("Account activation", user.getEmail(),
-				"Click this link to activate your account:http://localhost:8080/api/auth/accountVerification/" + token));
+		return UserToken.builder()
+				.email(user.getEmail())
+				.token(token)
+				.build();
 
 	}
 
+	public void sendMail(UserToken credentials) {
+		mailService.sendMail(new NotificationEmail("Account activation", credentials.getEmail(),
+						"Click this link to activate your account:http://localhost:8080/api/auth/accountVerification/" + credentials.getToken()));
+
+	}
+	
 	private String generateVerificationToken(User user) {
 		String token = UUID.randomUUID().toString();
 		VerificationToken verificationToken = new VerificationToken();
@@ -70,7 +79,7 @@ public class AuthService {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String token = jwtProvider.generateToken(authentication);
 		return AuthenticationResponse.builder()
-                .authToken(token)
+                .authenticationToken(token)
                 .refreshToken(refreshTokenService.generateRefreshToken().getToken())
                 .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
                 .username(loginRequest.getUsername())
@@ -81,7 +90,7 @@ public class AuthService {
         refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
         String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getUsername());
         return AuthenticationResponse.builder()
-                .authToken(token)
+                .authenticationToken(token)
                 .refreshToken(refreshTokenRequest.getRefreshToken())
                 .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
                 .username(refreshTokenRequest.getUsername())

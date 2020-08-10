@@ -13,6 +13,7 @@ import com.zhyshko.dto.AuthenticationResponse;
 import com.zhyshko.dto.LoginRequest;
 import com.zhyshko.dto.RefreshTokenRequest;
 import com.zhyshko.dto.RegisterRequest;
+import com.zhyshko.dto.UserToken;
 import com.zhyshko.service.AuthService;
 import com.zhyshko.service.RefreshTokenService;
 
@@ -21,6 +22,7 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class AuthController {
 
 	private final AuthService authService;
@@ -28,11 +30,13 @@ public class AuthController {
 	
 	@PostMapping("/signup")
 	public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
+		UserToken credentials = null;
 		try {
-			authService.signup(registerRequest);
+			credentials = authService.signup(registerRequest);
 		}catch(Exception e) {
 			return new ResponseEntity<>("User with this e-mail or username exists", HttpStatus.CONFLICT);
 		}
+		authService.sendMail(credentials);
 		return new ResponseEntity<>("Activation email sent", HttpStatus.OK);
 	}
 	

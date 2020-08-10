@@ -5,14 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+public class UserToken {
 
 	private String email;
-	private String username;
-	private String password;
+	private String token;
 	
 }
