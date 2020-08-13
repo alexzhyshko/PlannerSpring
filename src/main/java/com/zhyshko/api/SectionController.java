@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.model.Card;
-import com.zhyshko.model.Section;
+import com.zhyshko.convert.SectionDtoToJson;
+import com.zhyshko.dto.Card;
+import com.zhyshko.dto.Section;
 import com.zhyshko.service.CardService;
 import com.zhyshko.service.SectionService;
 
@@ -31,13 +31,13 @@ public class SectionController {
 	
 	
 	@GetMapping
-	public List<Section> getAllSections() {
-		return sectionService.getAllSections();
+	public List<com.zhyshko.json.Section> getAllSections() {
+		return SectionDtoToJson.toJson(sectionService.getAllSections());
 	}
 	
 	@GetMapping("/by-user/{username}/{dashboardid}/{sectionid}")
 	public ResponseEntity<Object> getSectionByUser(@PathVariable("username") String username, @PathVariable("dashboardid") UUID dashboardid, @PathVariable("sectionid") UUID sectionid) {
-		Section result = sectionService.getSectionByUser(username, dashboardid, sectionid);
+		com.zhyshko.json.Section result =  SectionDtoToJson.toJson(sectionService.getSectionByUser(username, dashboardid, sectionid));
 		if(result==null) {
 			return new ResponseEntity<>("No such section", HttpStatus.NOT_FOUND);
 		}
@@ -54,7 +54,7 @@ public class SectionController {
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
 	
-	@DeleteMapping("/removeCard")
+	@PostMapping("/removeCard")
 	public ResponseEntity<String> removeSection(@RequestBody Map<String, String> json) {
 		UUID sectionid = UUID.fromString(json.get("sectionid"));
 		UUID cardid =  UUID.fromString(json.get("cardid"));

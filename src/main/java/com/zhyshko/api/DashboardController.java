@@ -1,12 +1,10 @@
 package com.zhyshko.api;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.model.Dashboard;
-import com.zhyshko.model.Section;
+import com.zhyshko.convert.DashboardDtoToJson;
+import com.zhyshko.dto.Dashboard;
+import com.zhyshko.dto.Section;
 import com.zhyshko.service.DashboardService;
 import com.zhyshko.service.SectionService;
 
@@ -36,13 +35,13 @@ public class DashboardController {
 	}
 	
 	@GetMapping
-	public List<Dashboard> getAllDashboards() {
-		return dashboardService.getAllDashboards();
+	public List<com.zhyshko.json.Dashboard> getAllDashboards() {
+		return DashboardDtoToJson.toJson(dashboardService.getAllDashboards());
 	}
 		
 	@GetMapping("/by-user/{username}/{dashboardid}")
 	public ResponseEntity<Object> getDashboardByUser(@PathVariable("username") String username, @PathVariable("dashboardid") UUID dashboardid) {
-		Dashboard result = dashboardService.getDashboardByUser(username, dashboardid);
+		com.zhyshko.json.Dashboard result = DashboardDtoToJson.toJson(dashboardService.getDashboardByUser(username, dashboardid));
 		if(result==null) {
 			return new ResponseEntity<>("No such dashboard", HttpStatus.NOT_FOUND);
 		}
@@ -58,12 +57,10 @@ public class DashboardController {
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
 	
-	@DeleteMapping("/removeSection")
-	public ResponseEntity<String> removeSection(@RequestBody Map<String, String> json) {
-		UUID dashboardid = UUID.fromString(json.get("dashboardid"));
-		UUID sectionid =  UUID.fromString(json.get("sectionid"));
-		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
+	@GetMapping("/removeSection/{sectionid}")
+	public ResponseEntity<String> removeSection(@PathVariable("sectionid") UUID sectionid) {
 		Section section = sectionService.getSectionById(sectionid);
+		Dashboard dashboard = dashboardService.getDashboardById(section.getDashboard().getId());
 		dashboard.getSections().remove(section);
 		section.setDashboard(null);
 		dashboardService.updateDashboard(dashboard);

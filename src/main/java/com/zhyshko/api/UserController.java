@@ -1,6 +1,5 @@
 package com.zhyshko.api;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.model.Dashboard;
-import com.zhyshko.model.User;
+import com.zhyshko.convert.UserDtoToJson;
+import com.zhyshko.dto.Dashboard;
+import com.zhyshko.dto.User;
 import com.zhyshko.service.DashboardService;
 import com.zhyshko.service.UserService;
 
@@ -28,60 +28,74 @@ public class UserController {
 
 	private final UserService userService;
 	private final DashboardService dashboardService;
-	
+
 	@GetMapping
-	public List<User> getAllUsers() {
-		return userService.getAllUsers();
+	public List<com.zhyshko.json.User> getAllUsers() {
+		return UserDtoToJson.toJson(userService.getAllUsers());
 	}
-	
+
 	@GetMapping("/{username}")
-	public User getUserById(@PathVariable("username") String username) {
-		return userService.getUserByUsername(username);
+	public com.zhyshko.json.User getUserById(@PathVariable("username") String username) {
+		return UserDtoToJson.toJson(userService.getUserByUsername(username));
 	}
-	
-	
-	
+
 	@PostMapping("/createDashboard/{userid}")
-	public ResponseEntity<String> createDashboard(@PathVariable("userid") UUID userid, @RequestBody Dashboard dashboard) {
-		User user = userService.getUserById(userid);
-		dashboard.setCreator(user);
+	public ResponseEntity<String> createDashboard(@PathVariable("userid") String id,
+			@RequestBody Dashboard dashboard) {
+		User user = null;
+		try {
+			user = userService.getUserById(UUID.fromString(id));
+		}catch(Exception e) {
+			user = userService.getUserByUsername(id);
+		}
+		dashboard.setCreatorId(user.getId());
 		user.getDashboards().add(dashboard);
 		userService.updateUser(user);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
-	
+
+
 	@PostMapping("/joinDashboard")
 	public ResponseEntity<String> joinDashboard(@RequestBody Map<String, String> json) {
-		UUID userid = UUID.fromString(json.get("userid"));
-		UUID dashboardid =  UUID.fromString(json.get("dashboardid"));
-		User user = userService.getUserById(userid);
+		User user = null;
+		try {
+			UUID userid = UUID.fromString(json.get("userid"));
+			user = userService.getUserById(userid);
+		} catch (Exception e) {
+			String username = json.get("username");
+			user = userService.getUserByUsername(username);
+		}
+		UUID dashboardid = UUID.fromString(json.get("dashboardid"));
 		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
+		if(dashboard==null) {
+			return new ResponseEntity<>("Not found", HttpStatus.NOT_FOUND);
+		}
+		if(user.getDashboards().contains(dashboard)) {
+			return new ResponseEntity<>("Already joined", HttpStatus.CONFLICT);
+		}
 		user.getDashboards().add(dashboard);
 		userService.updateUser(user);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
-	
-	
-	@PostMapping("/leaveDashboard")
-	public ResponseEntity<String> leaveDashboard(@RequestBody Map<String, String> json) {
-		UUID userid = UUID.fromString(json.get("userid"));
-		UUID dashboardid =  UUID.fromString(json.get("dashboardid"));
+
+	@GetMapping("/leaveDashboard/{dashboardid}/{userid}")
+	public ResponseEntity<String> leaveDashboard(@PathVariable("") UUID dashboardid, @PathVariable UUID userid) {
 		User user = userService.getUserById(userid);
 		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
 		user.getDashboards().remove(dashboard);
 		userService.updateUser(user);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
-	
+
 	@GetMapping("/deleteDashboard/{dashboardid}")
 	public ResponseEntity<String> leaveDashboard(@PathVariable UUID dashboardid) {
 		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
-		for(User user : dashboard.getUsers()) {
+		for (User user : dashboard.getUsers()) {
 			user.getDashboards().remove(dashboard);
 			userService.updateUser(user);
 		}
 		dashboardService.deleteDashboard(dashboardid);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
-	
+
 }

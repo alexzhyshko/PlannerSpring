@@ -4,34 +4,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.zhyshko.model.Dashboard;
 import com.zhyshko.model.User;
+import com.zhyshko.repository.CardRepository;
 import com.zhyshko.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
 	private final UserRepository userRepository;
-	
+	private ModelMapper mapper = new ModelMapper();
 	
 	@Transactional
-	public User addUser(User user) {
-		return userRepository.save(user);
+	public com.zhyshko.dto.User addUser(com.zhyshko.dto.User user) {
+		return mapper.map(userRepository.save(mapper.map(user, User.class)), com.zhyshko.dto.User.class);
 	}
 	
 	
 	@Transactional
-	public List<User> getAllUsers(){
-		List<User> result = new ArrayList<>();
+	public List<com.zhyshko.dto.User> getAllUsers(){
+		List<com.zhyshko.dto.User> result = new ArrayList<>();
 		for(User user : userRepository.findAll()) {
-			result.add(user);
+			result.add(mapper.map(user, com.zhyshko.dto.User.class));
 		}
 		return result;
 	}
@@ -39,13 +41,13 @@ public class UserService {
 	
 	
 	@Transactional
-	public User getUserById(UUID id){
-		return userRepository.findById(id).orElse(null);
+	public com.zhyshko.dto.User getUserById(UUID id){
+		return mapper.map(userRepository.findById(id).orElse(null), com.zhyshko.dto.User.class);
 	}
 	
 	@Transactional
-	public User getUserByUsername(String username){
-		return userRepository.findByUsername(username).orElse(null);
+	public com.zhyshko.dto.User getUserByUsername(String username){
+		return mapper.map(userRepository.findByUsername(username).orElse(null), com.zhyshko.dto.User.class);
 	}
 	
 	
@@ -56,8 +58,8 @@ public class UserService {
 	
 	
 	@Transactional
-	public User updateUser(User user){
-		return userRepository.save(user);
+	public com.zhyshko.dto.User updateUser(com.zhyshko.dto.User user){
+		return  mapper.map(userRepository.save(mapper.map(user, User.class)), com.zhyshko.dto.User.class);
 	}
 	
 	

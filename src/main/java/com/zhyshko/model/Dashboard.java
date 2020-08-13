@@ -11,13 +11,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.AllArgsConstructor;
@@ -45,10 +45,18 @@ public class Dashboard {
 	List<Section> sections;
 
 	@ManyToMany(mappedBy = "dashboards", cascade = { CascadeType.MERGE, CascadeType.PERSIST }, fetch = FetchType.LAZY)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+	//@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+	//@JsonManagedReference
+	@JsonIgnore
 	List<User> users;
-
-	@OneToOne
-	User creator;
+//
+//	@OneToOne
+//	//@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+//	//@JsonManagedReference
+//	@JsonIgnore
+//	User creator;
+	
+	@Column(columnDefinition = "BINARY(16)")
+	UUID creatorId;
 
 }
