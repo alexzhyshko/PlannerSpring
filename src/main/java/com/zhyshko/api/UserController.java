@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhyshko.convert.toJsonFriendly.UserEntityToJson;
+import com.zhyshko.factory.NotificationFactory;
 import com.zhyshko.model.Dashboard;
+import com.zhyshko.model.Notification;
+import com.zhyshko.model.Section;
 import com.zhyshko.model.User;
 import com.zhyshko.service.DashboardService;
+import com.zhyshko.service.NotificationService;
 import com.zhyshko.service.UserService;
 
 import lombok.AllArgsConstructor;
@@ -28,6 +32,8 @@ public class UserController {
 
 	private final UserService userService;
 	private final DashboardService dashboardService;
+	private final NotificationFactory notificationFactory;
+	private final NotificationService notificationService;
 
 	@GetMapping
 	public List<com.zhyshko.json.User> getAllUsers() {
@@ -40,12 +46,11 @@ public class UserController {
 	}
 
 	@PostMapping("/createDashboard/{userid}")
-	public ResponseEntity<String> createDashboard(@PathVariable("userid") String id,
-			@RequestBody Dashboard dashboard) {
+	public ResponseEntity<String> createDashboard(@PathVariable("userid") String id, @RequestBody Dashboard dashboard) {
 		User user = null;
 		try {
 			user = userService.getUserById(UUID.fromString(id));
-		}catch(Exception e) {
+		} catch (Exception e) {
 			user = userService.getUserByUsername(id);
 		}
 		dashboard.setCreatorId(user.getId());
@@ -53,7 +58,6 @@ public class UserController {
 		userService.updateUser(user);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
-
 
 	@PostMapping("/joinDashboard")
 	public ResponseEntity<String> joinDashboard(@RequestBody Map<String, String> json) {
@@ -67,10 +71,10 @@ public class UserController {
 		}
 		UUID dashboardid = UUID.fromString(json.get("dashboardid"));
 		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
-		if(dashboard==null) {
+		if (dashboard == null) {
 			return new ResponseEntity<>("Not found", HttpStatus.NOT_FOUND);
 		}
-		if(user.getDashboards().contains(dashboard)) {
+		if (user.getDashboards().contains(dashboard)) {
 			return new ResponseEntity<>("Already joined", HttpStatus.CONFLICT);
 		}
 		user.getDashboards().add(dashboard);
@@ -92,10 +96,37 @@ public class UserController {
 		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
 		for (User user : dashboard.getUsers()) {
 			user.getDashboards().remove(dashboard);
+			user.getNotifications().add(this.notificationFactory.fillDashboardDeletedTemplate(dashboard, user));
+			for (Section section : dashboard.getSections()) {
+				user.getCards().removeAll(section.getCards());
+			}
 			userService.updateUser(user);
 		}
 		dashboardService.deleteDashboard(dashboardid);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
+	}
+
+	@GetMapping("/readAllNotifications/{userid}")
+	public ResponseEntity<String> readAllNotifications(@PathVariable UUID userid) {
+		User user = userService.getUserById(userid);
+		for (Notification notification : user.getNotifications()) {
+			notification.setSeen(true);
+		}
+		userService.updateUser(user);
+		return new ResponseEntity<>("Done", HttpStatus.OK);
+	}
+
+	@GetMapping("/clearAllNotifications/{userid}")
+	public ResponseEntity<String> clearAllNotifications(@PathVariable UUID userid) {
+		User user = userService.getUserById(userid);
+		List<Notification> temp = user.getNotifications();
+		user.getNotifications().clear();
+		userService.updateUser(user);
+		for (Notification notification : temp) {
+			notification.setOwner(null);
+			notificationService.deleteNotification(notification.getId());
+		}
+		return new ResponseEntity<>("Done", HttpStatus.OK);
 	}
 
 }

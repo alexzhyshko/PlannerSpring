@@ -22,7 +22,7 @@ public class Card {
 	private String bottomTitle;
 	private LocalDate date;
 	private LocalTime time;
-	private Section section;
+	private SectionBack section;
 	private List<UserBack> workers;
 	
 

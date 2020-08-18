@@ -1,5 +1,6 @@
 package com.zhyshko.model;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -42,6 +43,7 @@ public class Notification {
 	private String text;
 	@Builder.Default
 	private boolean isSeen = false;
+	private LocalDateTime created;
 	
 	@ManyToOne
 	@JoinColumn(name = "owner_id")

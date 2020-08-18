@@ -14,6 +14,7 @@ public class NotificationEntityToJson {
 				.text(dto.getText())
 				.isSeen(dto.isSeen())
 				.owner(UserToUserBackConverter.toJson(dto.getOwner()))
+				.created(dto.getCreated())
 				.build();
 	}
 	

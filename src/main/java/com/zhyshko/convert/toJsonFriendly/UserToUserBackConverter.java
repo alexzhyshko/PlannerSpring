@@ -13,7 +13,7 @@ public class UserToUserBackConverter {
 				.username(dto.getUsername())
 				.id(dto.getId())
 				.password(dto.getPassword())
-				.email(dto.getPassword())
+				.email(dto.getEmail())
 				.enabled(dto.isEnabled())
 				.build();
 	}

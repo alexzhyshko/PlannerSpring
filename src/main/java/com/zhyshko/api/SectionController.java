@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhyshko.convert.toJsonFriendly.SectionEntityToJson;
+import com.zhyshko.factory.NotificationFactory;
 import com.zhyshko.model.Card;
 import com.zhyshko.model.Section;
+import com.zhyshko.model.User;
 import com.zhyshko.service.CardService;
 import com.zhyshko.service.SectionService;
+import com.zhyshko.service.UserService;
 
 import lombok.AllArgsConstructor;
 
@@ -26,8 +29,11 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/api/section")
 public class SectionController {
 
+	private final UserService userService;
 	private final SectionService sectionService;
 	private final CardService cardService;
+	private final NotificationFactory notificationFactory;
+	
 	
 	
 	@GetMapping
@@ -50,6 +56,10 @@ public class SectionController {
 		Section section = sectionService.getSectionById(sectionid);
 		section.getCards().add(card);
 		card.setSection(section);
+		for (User user : section.getDashboard().getUsers()) {
+			user.getNotifications().add(this.notificationFactory.fillCardAddedTemplate(card, user));
+			userService.updateUser(user);
+		}
 		sectionService.updateSection(section);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
@@ -60,6 +70,11 @@ public class SectionController {
 		UUID cardid =  UUID.fromString(json.get("cardid"));
 		Section section = sectionService.getSectionById(sectionid);
 		Card card = cardService.getCardById(cardid);
+		for (User user : card.getWorkers()) {
+			user.getCards().remove(card);
+			user.getNotifications().add(this.notificationFactory.fillCardDeletedTemplate(card, user));
+			userService.updateUser(user);
+		}
 		section.getCards().remove(card);
 		card.setSection(null);
 		sectionService.updateSection(section);

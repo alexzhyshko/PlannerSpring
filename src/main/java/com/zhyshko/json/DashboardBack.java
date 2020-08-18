@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SectionBack {
+public class DashboardBack {
 
 	private UUID id;
 	private String title;
-	private DashboardBack dashboard;
+	private UUID creatorId;
 }

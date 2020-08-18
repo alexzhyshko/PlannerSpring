@@ -1,5 +1,6 @@
 package com.zhyshko.json;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class Notification {
 	private String text;
 	@Builder.Default
 	private boolean isSeen = false;
-
+	private LocalDateTime created;
 	
 	private UserBack owner;
 

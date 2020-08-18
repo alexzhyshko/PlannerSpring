@@ -5,14 +5,15 @@ import java.util.stream.Collectors;
 
 public class SectionToSectionBackConverter {
 
-	public static com.zhyshko.json.Section toJson(com.zhyshko.model.Section dto){
-		return com.zhyshko.json.Section.builder()
+	public static com.zhyshko.json.SectionBack toJson(com.zhyshko.model.Section dto){
+		return com.zhyshko.json.SectionBack.builder()
 				.id(dto.getId())
 				.title(dto.getTitle())
+				.dashboard(DashboardToDashboardBackConverter.toJson(dto.getDashboard()))
 				.build();
 	}
 
-	public static List<com.zhyshko.json.Section> toJson(List<com.zhyshko.model.Section> cards) {
+	public static List<com.zhyshko.json.SectionBack> toJson(List<com.zhyshko.model.Section> cards) {
 		return cards.stream().map(SectionToSectionBackConverter::toJson).collect(Collectors.toList());
 	}
 	

@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhyshko.convert.toJsonFriendly.DashboardEntityToJson;
+import com.zhyshko.factory.NotificationFactory;
 import com.zhyshko.model.Dashboard;
 import com.zhyshko.model.Section;
+import com.zhyshko.model.User;
 import com.zhyshko.service.DashboardService;
 import com.zhyshko.service.SectionService;
+import com.zhyshko.service.UserService;
 
 import lombok.AllArgsConstructor;
 
@@ -24,10 +27,13 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashboardController {
-
+	
+	private final UserService userService;
 	private final DashboardService dashboardService;
 	private final SectionService sectionService;
-
+	private final NotificationFactory notificationFactory;
+	
+	
 	@PostMapping("/create")
 	public ResponseEntity<String> addUser(@RequestBody Dashboard dashboard) {
 		dashboardService.addDashboard(dashboard);
@@ -53,6 +59,10 @@ public class DashboardController {
 		Dashboard dashboard = dashboardService.getDashboardById(dashboardid);
 		dashboard.getSections().add(section);
 		section.setDashboard(dashboard);
+		for(User user : dashboard.getUsers()) {
+			user.getNotifications().add(this.notificationFactory.fillSectionAddedTemplate(section, user));
+			userService.updateUser(user);
+		}
 		dashboardService.updateDashboard(dashboard);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
@@ -61,6 +71,11 @@ public class DashboardController {
 	public ResponseEntity<String> removeSection(@PathVariable("sectionid") UUID sectionid) {
 		Section section = sectionService.getSectionById(sectionid);
 		Dashboard dashboard = dashboardService.getDashboardById(section.getDashboard().getId());
+		for (User user : dashboard.getUsers()) {
+			user.getCards().removeAll(section.getCards());
+			user.getNotifications().add(this.notificationFactory.fillSectionDeletedTemplate(section, user));
+			userService.updateUser(user);
+		}
 		dashboard.getSections().remove(section);
 		section.setDashboard(null);
 		dashboardService.updateDashboard(dashboard);
