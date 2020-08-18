@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.convert.DashboardDtoToJson;
-import com.zhyshko.dto.Dashboard;
-import com.zhyshko.dto.Section;
+import com.zhyshko.convert.toJsonFriendly.DashboardEntityToJson;
+import com.zhyshko.model.Dashboard;
+import com.zhyshko.model.Section;
 import com.zhyshko.service.DashboardService;
 import com.zhyshko.service.SectionService;
 
@@ -36,12 +36,12 @@ public class DashboardController {
 	
 	@GetMapping
 	public List<com.zhyshko.json.Dashboard> getAllDashboards() {
-		return DashboardDtoToJson.toJson(dashboardService.getAllDashboards());
+		return DashboardEntityToJson.toJson(dashboardService.getAllDashboards());
 	}
 		
 	@GetMapping("/by-user/{username}/{dashboardid}")
 	public ResponseEntity<Object> getDashboardByUser(@PathVariable("username") String username, @PathVariable("dashboardid") UUID dashboardid) {
-		com.zhyshko.json.Dashboard result = DashboardDtoToJson.toJson(dashboardService.getDashboardByUser(username, dashboardid));
+		com.zhyshko.json.Dashboard result = DashboardEntityToJson.toJson(dashboardService.getDashboardByUser(username, dashboardid));
 		if(result==null) {
 			return new ResponseEntity<>("No such dashboard", HttpStatus.NOT_FOUND);
 		}

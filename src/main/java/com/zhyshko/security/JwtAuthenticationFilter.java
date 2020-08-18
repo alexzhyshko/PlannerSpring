@@ -52,6 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 			filterChain.doFilter(request, response);
 		} catch (Exception e) {
+			//e.printStackTrace(); //TODO enable logging
 			response.setStatus(403);
 			response.getWriter().write("403 Forbidden");
 		}

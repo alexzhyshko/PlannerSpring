@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.convert.UserDtoToJson;
-import com.zhyshko.dto.Dashboard;
-import com.zhyshko.dto.User;
+import com.zhyshko.convert.toJsonFriendly.UserEntityToJson;
+import com.zhyshko.model.Dashboard;
+import com.zhyshko.model.User;
 import com.zhyshko.service.DashboardService;
 import com.zhyshko.service.UserService;
 
@@ -31,12 +31,12 @@ public class UserController {
 
 	@GetMapping
 	public List<com.zhyshko.json.User> getAllUsers() {
-		return UserDtoToJson.toJson(userService.getAllUsers());
+		return UserEntityToJson.toJson(userService.getAllUsers());
 	}
 
 	@GetMapping("/{username}")
-	public com.zhyshko.json.User getUserById(@PathVariable("username") String username) {
-		return UserDtoToJson.toJson(userService.getUserByUsername(username));
+	public com.zhyshko.json.User getUserByUsername(@PathVariable("username") String username) {
+		return UserEntityToJson.toJson(userService.getUserByUsername(username));
 	}
 
 	@PostMapping("/createDashboard/{userid}")

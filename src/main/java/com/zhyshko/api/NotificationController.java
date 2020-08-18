@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.convert.NotificationDtoToJson;
-import com.zhyshko.dto.Notification;
-import com.zhyshko.dto.User;
+import com.zhyshko.convert.toJsonFriendly.NotificationEntityToJson;
+import com.zhyshko.model.Notification;
+import com.zhyshko.model.User;
 import com.zhyshko.service.NotificationService;
 import com.zhyshko.service.UserService;
 
@@ -30,7 +30,7 @@ public class NotificationController {
 	
 	@GetMapping
 	public List<com.zhyshko.json.Notification> getAllCards() {
-		return NotificationDtoToJson.toJson(notificationService.getAllNotifications());
+		return NotificationEntityToJson.toJson(notificationService.getAllNotifications());
 	}
 	
 	@PostMapping("/userAddNotifications")

@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.convert.CardDtoToJson;
-import com.zhyshko.dto.Card;
-import com.zhyshko.dto.User;
+import com.zhyshko.convert.toJsonFriendly.CardEntityToJson;
+import com.zhyshko.model.Card;
+import com.zhyshko.model.User;
 import com.zhyshko.service.CardService;
 import com.zhyshko.service.UserService;
 
@@ -30,7 +30,7 @@ public class CardController {
 
 	@GetMapping
 	public List<com.zhyshko.json.Card> getAllCards() {
-		return CardDtoToJson.toJson(cardService.getAllCards());
+		return CardEntityToJson.toJson(cardService.getAllCards());
 	}
 
 	@PostMapping("/userJoinCard")
@@ -58,15 +58,20 @@ public class CardController {
 		UUID userid = UUID.fromString(json.get("userid"));
 		Card card = cardService.getCardById(cardid);
 		User user = userService.getUserById(userid);
-		if (!card.getWorkers().contains(user)) {
-			return new ResponseEntity<>("Conflict", HttpStatus.CONFLICT);
+//		if (!card.getWorkers().contains(user)) {
+//			return new ResponseEntity<>("Conflict", HttpStatus.CONFLICT);
+//		}
+//		if (!user.getCards().contains(card)) {
+//			return new ResponseEntity<>("Conflict", HttpStatus.CONFLICT);
+//		}
+		System.out.println("1");
+		try {
+			card.getWorkers().remove(user);
+			user.getCards().remove(card);
+			userService.updateUser(user);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		if (!user.getCards().contains(card)) {
-			return new ResponseEntity<>("Conflict", HttpStatus.CONFLICT);
-		}
-		card.getWorkers().remove(user);
-		user.getCards().remove(card);
-		userService.updateUser(user);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
 

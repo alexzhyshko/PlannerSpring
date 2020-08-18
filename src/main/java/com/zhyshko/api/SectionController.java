@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhyshko.convert.SectionDtoToJson;
-import com.zhyshko.dto.Card;
-import com.zhyshko.dto.Section;
+import com.zhyshko.convert.toJsonFriendly.SectionEntityToJson;
+import com.zhyshko.model.Card;
+import com.zhyshko.model.Section;
 import com.zhyshko.service.CardService;
 import com.zhyshko.service.SectionService;
 
@@ -32,12 +32,12 @@ public class SectionController {
 	
 	@GetMapping
 	public List<com.zhyshko.json.Section> getAllSections() {
-		return SectionDtoToJson.toJson(sectionService.getAllSections());
+		return SectionEntityToJson.toJson(sectionService.getAllSections());
 	}
 	
 	@GetMapping("/by-user/{username}/{dashboardid}/{sectionid}")
 	public ResponseEntity<Object> getSectionByUser(@PathVariable("username") String username, @PathVariable("dashboardid") UUID dashboardid, @PathVariable("sectionid") UUID sectionid) {
-		com.zhyshko.json.Section result =  SectionDtoToJson.toJson(sectionService.getSectionByUser(username, dashboardid, sectionid));
+		com.zhyshko.json.Section result =  SectionEntityToJson.toJson(sectionService.getSectionByUser(username, dashboardid, sectionid));
 		if(result==null) {
 			return new ResponseEntity<>("No such section", HttpStatus.NOT_FOUND);
 		}
