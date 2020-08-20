@@ -10,10 +10,10 @@ public class NotificationFactory {
 	private String deleteDashboardTemplateText = "':dashboard' was deleted";
 	private String addCardTemplateText = "':card' card was added to a dashboard";
 	private String addSectionTemplateText = "':section' section was added to a dashboard";
-	private String deleteCardTemplateText = "':card' card was added from a dashboard";
+	private String deleteCardTemplateText = "':card' card was removed from a dashboard";
 	private String deleteSectionCardTemplateText = "':section' section was deleted from a dashboard";
-	private String addUserToCardTemplateText = ":username joined a ':card' card, which you are member of";
-	private String leaveUserFromCardTemplateText = ":username left a ':card' card, which you are member of";
+	private String addUserToCardTemplateText = ":username joined ':card' card, which you are member of";
+	private String leaveUserFromCardTemplateText = ":username left ':card' card, which you are member of";
 	private String cardDeadlineTomorrowTemplateText = "Tomorow is deadline of ':card' card";
 	private String cardDeadlineIn2DaysTemplateText = "In two days is deadline of ':card' card";
 	private String cardDeadlineInWeekTemplateText = "In a week is deadline of ':card' card";
@@ -23,6 +23,7 @@ public class NotificationFactory {
 				.title(card.getSection().getDashboard().getTitle()+"#"+card.getSection().getTitle())
 				.text(addCardTemplateText.replace(":card", card.getTitle()))
 				.owner(user)
+				.created(LocalDateTime.now())
 				.build();
 	}
 	
@@ -53,20 +54,20 @@ public class NotificationFactory {
 				.build();
 	}
 	
-	public com.zhyshko.model.Notification fillUserJoinedCardTemplate(com.zhyshko.model.Card card, com.zhyshko.model.User user){
+	public com.zhyshko.model.Notification fillUserJoinedCardTemplate(com.zhyshko.model.Card card, com.zhyshko.model.User owner, com.zhyshko.model.User whpJoined){
 		return com.zhyshko.model.Notification.builder()
 				.title(card.getSection().getDashboard().getTitle()+"#"+card.getSection().getTitle())
-				.text(addUserToCardTemplateText.replace(":card", card.getTitle()).replace(":username", user.getUsername()))
-				.owner(user)
+				.text(addUserToCardTemplateText.replace(":card", card.getTitle()).replace(":username", whpJoined.getUsername()))
+				.owner(owner)
 				.created(LocalDateTime.now())
 				.build();
 	}
 	
-	public com.zhyshko.model.Notification fillUserLeftCardTemplate(com.zhyshko.model.Card card, com.zhyshko.model.User user){
+	public com.zhyshko.model.Notification fillUserLeftCardTemplate(com.zhyshko.model.Card card, com.zhyshko.model.User owner, com.zhyshko.model.User whoLeft){
 		return com.zhyshko.model.Notification.builder()
 				.title(card.getSection().getDashboard().getTitle()+"#"+card.getSection().getTitle())
-				.text(leaveUserFromCardTemplateText.replace(":card", card.getTitle()).replace(":username", user.getUsername()))
-				.owner(user)
+				.text(leaveUserFromCardTemplateText.replace(":card", card.getTitle()).replace(":username", whoLeft.getUsername()))
+				.owner(owner)
 				.created(LocalDateTime.now())
 				.build();
 	}

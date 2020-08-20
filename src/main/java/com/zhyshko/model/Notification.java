@@ -47,7 +47,6 @@ public class Notification {
 	
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
-	@Cascade(CascadeType.ALL)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 	private User owner;
 

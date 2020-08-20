@@ -40,10 +40,17 @@ public class UserController {
 		return UserEntityToJson.toJson(userService.getAllUsers());
 	}
 
-	@GetMapping("/{username}")
-	public com.zhyshko.json.User getUserByUsername(@PathVariable("username") String username) {
-		return UserEntityToJson.toJson(userService.getUserByUsername(username));
+	@GetMapping("/{credential}")
+	public com.zhyshko.json.User getUserByUsername(@PathVariable("credential") String credential) {
+		try {
+			return UserEntityToJson.toJson(userService.getUserById(UUID.fromString(credential)));
+		}catch(Exception e) {
+			return UserEntityToJson.toJson(userService.getUserByUsername(credential));
+		}
+		
 	}
+	
+	
 
 	@PostMapping("/createDashboard/{userid}")
 	public ResponseEntity<String> createDashboard(@PathVariable("userid") String id, @RequestBody Dashboard dashboard) {
@@ -123,7 +130,9 @@ public class UserController {
 		user.getNotifications().clear();
 		userService.updateUser(user);
 		for (Notification notification : temp) {
+			notification = notificationService.getNotificationById(notification.getId());
 			notification.setOwner(null);
+			notificationService.updateNotification(notification);
 			notificationService.deleteNotification(notification.getId());
 		}
 		return new ResponseEntity<>("Done", HttpStatus.OK);

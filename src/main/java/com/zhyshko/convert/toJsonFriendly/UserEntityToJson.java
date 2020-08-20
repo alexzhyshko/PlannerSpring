@@ -14,7 +14,7 @@ public class UserEntityToJson {
 				.username(dto.getUsername())
 				.id(dto.getId())
 				.password(dto.getPassword())
-				.email(dto.getPassword())
+				.email(dto.getEmail())
 				.enabled(dto.isEnabled())
 				.dashboards(DashboardEntityToJson.toJson(dto.getDashboards()))
 				.cards(CardEntityToJson.toJson(dto.getCards()))

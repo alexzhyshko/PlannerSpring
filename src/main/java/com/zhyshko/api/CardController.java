@@ -29,8 +29,7 @@ public class CardController {
 	private final CardService cardService;
 	private final UserService userService;
 	private final NotificationFactory notificationFactory;
-	
-	
+
 	@GetMapping
 	public List<com.zhyshko.json.Card> getAllCards() {
 		return CardEntityToJson.toJson(cardService.getAllCards());
@@ -48,8 +47,8 @@ public class CardController {
 		if (user.getCards().contains(card)) {
 			return new ResponseEntity<>("Conflict", HttpStatus.CONFLICT);
 		}
-		for (User temp : card.getSection().getDashboard().getUsers()) {
-			user.getNotifications().add(this.notificationFactory.fillUserJoinedCardTemplate(card, temp));
+		for (User temp : card.getWorkers()) {
+			user.getNotifications().add(this.notificationFactory.fillUserJoinedCardTemplate(card, temp, user));
 			userService.updateUser(temp);
 		}
 		card.getWorkers().add(user);
@@ -65,17 +64,13 @@ public class CardController {
 		UUID userid = UUID.fromString(json.get("userid"));
 		Card card = cardService.getCardById(cardid);
 		User user = userService.getUserById(userid);
-		for (User temp : card.getSection().getDashboard().getUsers()) {
-			user.getNotifications().add(this.notificationFactory.fillUserLeftCardTemplate(card, temp));
+		card.getWorkers().remove(user);
+		user.getCards().remove(card);
+		for (User temp : card.getWorkers()) {
+			user.getNotifications().add(this.notificationFactory.fillUserLeftCardTemplate(card, temp, user));
 			userService.updateUser(temp);
 		}
-		try {
-			card.getWorkers().remove(user);
-			user.getCards().remove(card);
-			userService.updateUser(user);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		userService.updateUser(user);
 		return new ResponseEntity<>("Done", HttpStatus.CREATED);
 	}
 
